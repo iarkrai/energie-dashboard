@@ -15,35 +15,30 @@ urllib.request.urlretrieve(url, output_file)
 # Charger les données
 df = pd.read_csv(output_file, sep=";")
 
+# Vérification des colonnes pour éviter les erreurs liées à la colonne de date
+st.write("Colonnes disponibles dans le fichier :")
+st.write(df.columns)
 
+# Vérification si la colonne "Date - Heure" existe
+if "Date - Heure" not in df.columns:
+    st.error("La colonne 'Date - Heure' est introuvable dans le fichier.")
+    st.stop()  # Arrêter l'exécution si la colonne est absente
+
+# Corriger les espaces ou caractères invisibles dans les noms de colonnes
+df.columns = df.columns.str.strip()
+
+# Convertir la colonne "Date - Heure" en datetime
+df["Date - Heure"] = pd.to_datetime(df["Date - Heure"], errors="coerce")
+
+# Création des colonnes Année et Mois
+df["Année"] = df["Date - Heure"].dt.year
+df["Mois"] = df["Date - Heure"].dt.month
+
+# Afficher un aperçu des données pour vérifier que tout est bon
+st.write(df.head())
+
+# Définir la page
 st.set_page_config(page_title="Énergie France – Dashboard", layout="wide")
-
-@st.cache_data
-def load_data():
-    df = pd.read_csv("eco2mix_clean_final_2.csv", sep=";")
-
-
-    # Corrige d’éventuels espaces ou caractères invisibles
-    df.columns = df.columns.str.strip()
-
-    # Trouve la colonne contenant "Date" et "Heure" même si le nom n'est pas exact
-    col_date = [col for col in df.columns if "Date" in col and "Heure" in col]
-    if not col_date:
-        st.error(" Colonne contenant la date introuvable. Vérifiez le fichier CSV.")
-        st.stop()
-
-    #  Convertit la colonne en datetime
-    df[col_date[0]] = pd.to_datetime(df[col_date[0]])
-    df.rename(columns={col_date[0]: "Date - Heure"}, inplace=True)
-
-    #  Création des colonnes Année et Mois
-    df["Année"] = df["Date - Heure"].dt.year
-    df["Mois"] = df["Date - Heure"].dt.month
-
-    return df
-
-
-df = load_data()
 
 # --- SIDEBAR
 st.sidebar.title(" Navigation")
