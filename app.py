@@ -3,6 +3,18 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import urllib.request
+
+# Lien direct vers le fichier CSV hébergé sur Google Drive
+url = "https://drive.google.com/uc?export=download&id=1CFSC1Xq7MR1EDw1TRhuy4gF0psL5t2-a"
+output_file = "eco2mix_clean_final_2.csv"
+
+# Télécharger le fichier
+urllib.request.urlretrieve(url, output_file)
+
+# Charger les données
+df = pd.read_csv(output_file, sep=";")
+
 
 st.set_page_config(page_title="Énergie France – Dashboard", layout="wide")
 
